@@ -26,7 +26,7 @@ const babelConfig = {
 }
 
 
-gulp.task('plugins', () => {
+gulp.task('build-plugins', () => {
     return Promise.all([
         { name: 'RevealAwesoMD', input: './plugin/awesoMD/plugin.js', output: './plugin/awesoMD/awesoMD' },
     ].map( plugin => {
@@ -38,7 +38,7 @@ gulp.task('plugins', () => {
                     commonjs(),
                     babel({
                         ...babelConfig,
-                        ignore: [/node_modules\/(?!(highlight\.js|marked)\/).*/],
+                        ignore: ["node_modules"],
                     }),
                     terser()
                 ]
@@ -58,5 +58,3 @@ gulp.task('plugins', () => {
             });
     } ));
 })
-
-gulp.task('build', gulp.parallel('plugins'))

@@ -1,9 +1,9 @@
 {
-  "name": "RevealJs AawesoMD",
+  "name": "RevealJs AwesoMD",
   "version": "1.0.0",
   "description": "Revealjs plugin to support markdown with metadata and templates",
   "scripts": {
-    "build": "gulp build"
+    "build": "gulp build-plugins"
   },
   "repository": {
     "type": "git",

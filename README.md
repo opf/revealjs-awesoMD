@@ -8,7 +8,7 @@ Reveal.initialize({
     hash: true,
     // ...
 
-    plugins: [ RevealAwesoMD, RevealHighlight, RevealNotes ]
+    plugins: [ RevealAwesoMD ]
     // ...
 });
 ```
