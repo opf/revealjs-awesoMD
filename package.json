@@ -1,0 +1,19 @@
+{
+  "name": "revealjs-awesomd",
+  "version": "1.0.0",
+  "description": "Revealjs plugin to support markdown with metadata and templates",
+  "scripts": {
+    "test": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JankariTech/revealjs-awesoMD.git"
+  },
+  "keywords": [
+    "reveal",
+    "plugin"
+  ],
+  "author": "JankariTech",
+  "license": "",
+  "homepage": "https://github.com/JankariTech/revealjs-awesoMD#readme"
+}
