@@ -1,5 +1,5 @@
 {
-  "name": "RevealJs AwesoMD",
+  "name": "revealjs-awesomd",
   "version": "1.0.0",
   "description": "Revealjs plugin to support markdown with metadata and templates",
   "scripts": {
