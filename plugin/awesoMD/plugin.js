@@ -445,8 +445,8 @@ const Plugin = () => {
 		content = parsedFrontMatter.body;
 		if (parsedFrontMatter.frontmatter){
 			options.metadata = yaml.load(parsedFrontMatter.frontmatter);
-			if (!('slideType' in options.metadata)) {
-				content = `Missing "slideType" in default metadata`
+			if (!('slide' in options.metadata)) {
+				content = `Missing value of 'slide' in default metadata`
 				console.error(content)
 				delete options.metadata
 			}
@@ -471,18 +471,18 @@ const Plugin = () => {
 			if (metadata){
 				try {
 					const metadataYAML = yaml.load(metadata);
-					if (metadataYAML === undefined || metadataYAML.slideType === undefined) {
+					if (metadataYAML === undefined || metadataYAML.slide === undefined) {
 						throw new Error("The inline metadata is not valid.")
 					}
 					options.metadata = {...options.metadata, ...metadataYAML}
-					options.attributes = 'class=' + options.metadata.slideType;
+					options.attributes = 'class=' + options.metadata.slide;
 				} catch (error) {
 					markdown = error.message
 					console.error(error)
 				}
 			}
 		} else if (options.metadata){
-			options.attributes = 'class=' + options.metadata.slideType;
+			options.attributes = 'class=' + options.metadata.slide;
 		}
 
 		return [markdown, options]
@@ -497,7 +497,7 @@ const Plugin = () => {
 		try {
 			options = getSlidifyOptions(options)
 			const url = new URL(import.meta.url);
-			const templatePath = `${url.origin}/templates/${options.metadata.slideType}-template.html`
+			const templatePath = `${url.origin}/templates/${options.metadata.slide}-template.html`
 			const xhr = new XMLHttpRequest()
 			xhr.open('GET', templatePath, false)
 			xhr.send()
@@ -505,7 +505,7 @@ const Plugin = () => {
 			if (xhr.status === 200) {
 				tempDiv.innerHTML = Mustache.render(xhr.responseText, { content: content, metadata: options.metadata });
 			} else {
-				tempDiv.innerHTML = `Template for slideType "${options.metadata.slideType}" not found.`
+				tempDiv.innerHTML = `Template for slide "${options.metadata.slide}" not found.`
 				console.error(`Failed to fetch template. Status: ${xhr.status}`);
 			}
 			return tempDiv.textContent;
