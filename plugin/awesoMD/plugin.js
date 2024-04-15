@@ -471,7 +471,7 @@ const Plugin = () => {
 			if (metadata){
 				try {
 					const metadataYAML = yaml.load(metadata);
-					if (metadataYAML === undefined || metadataYAML.slide === undefined) {
+					if (metadataYAML === undefined) {
 						throw new Error("The inline metadata is not valid.")
 					}
 					options.metadata = {...options.metadata, ...metadataYAML}
