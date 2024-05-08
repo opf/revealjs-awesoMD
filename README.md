@@ -1,5 +1,5 @@
 # RevealJs AwesoMD
-A plugin for [Reveal.js](https://revealjs.com/) that support markdown with metadata.
+A plugin for [reveal.js](https://revealjs.com/) that support markdown with metadata.
 
 # Setup
 To use the plugin configure reveal.js plugin as:
@@ -13,7 +13,7 @@ Reveal.initialize({
 });
 ```
 
-And add the following script tag in index.html file:
+And add the following script tag in `index.html` file:
 ```html
 <script src="plugin/awesoMD/awesoMD.js"></script>
 ```
