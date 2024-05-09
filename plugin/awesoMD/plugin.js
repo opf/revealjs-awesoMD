@@ -495,6 +495,14 @@ const Plugin = () => {
 	 */
 	function renderTemplate(content, options) {
 		try {
+			const titleRegex = /^#+\s*(.*?)\s*$/m
+			const matches = content.match(titleRegex)
+			let title
+			if(matches) {
+				title = matches[1].trim()
+			}
+			const slideContent = content.replace(titleRegex, '')
+
 			options = getSlidifyOptions(options)
 			const url = new URL(import.meta.url);
 			const templatePath = `${url.origin}/templates/${options.metadata.slide}-template.html`
@@ -503,7 +511,7 @@ const Plugin = () => {
 			xhr.send()
 			let tempDiv = document.createElement('div');
 			if (xhr.status === 200) {
-				tempDiv.innerHTML = Mustache.render(xhr.responseText, { content: content, metadata: options.metadata });
+				tempDiv.innerHTML = Mustache.render(xhr.responseText, { title: title, content: slideContent, metadata: options.metadata });
 			} else {
 				tempDiv.innerHTML = `Template for slide "${options.metadata.slide}" not found.`
 				console.error(`Failed to fetch template. Status: ${xhr.status}`);
