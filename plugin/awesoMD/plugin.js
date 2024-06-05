@@ -578,6 +578,11 @@ const Plugin = () => {
 				renderer.listitem = text => `<li class="fragment">${text}</li>`;
 			}
 
+			markedOptions = {
+				gfm: true,
+				breaks: true,
+			}
+
 			marked.setOptions( {
 				renderer,
 				...markedOptions
