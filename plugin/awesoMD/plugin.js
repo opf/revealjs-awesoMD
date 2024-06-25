@@ -462,7 +462,25 @@ const Plugin = () => {
 	 */
 	function separateInlineMetadataAndMarkdown(markdown, options) {
 		const yamlRegex =  /```(yaml|yml)\n([\s\S]*?)```(\n[\s\S]*)?/g;
-		if (yamlRegex.test(markdown)){
+		const headingWithMetadataRegex = /^#+\s.*::\w+:\w+.*$/m
+		const metadataRegex = /::(\w+):([^::\n]*)/g
+
+		// extract metadata having format "::metadata_key:metadata_value"
+		if (headingWithMetadataRegex.test(markdown)) {
+			const inlineMetadata = {}
+			const matches = markdown.match(headingWithMetadataRegex)
+			if (metadataRegex.test(matches[0])) {
+				const metadataMatches = matches[0].match(metadataRegex)
+				metadataMatches.forEach(metadataMatch => {
+					const [key, value] = metadataMatch.replace('::', '').split(':')
+					inlineMetadata[key] = value.trim()
+					const metadataPattern = new RegExp(`::\\b${key}\\b:\\s*${value}`)
+					markdown = markdown.replace(metadataPattern, '')
+				})
+			}
+			options.metadata = {...options.metadata, ...inlineMetadata}
+			options.attributes = 'class=' + options.metadata.slide
+		} else if (yamlRegex.test(markdown)){
 			yamlRegex.lastIndex = 0;
 
 			const markdownParts = yamlRegex.exec(markdown)
