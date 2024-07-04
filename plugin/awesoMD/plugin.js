@@ -29,6 +29,10 @@ const HTML_ESCAPE_MAP = {
   "'": '&#39;'
 };
 
+const yamlRegex = /```(yaml|yml)\n([\s\S]*?)```(\n[\s\S]*)?/g
+const headingWithMetadataRegex = /^#+\s.*::\w+:\w+.*$/m
+const metadataRegex = /::(\w+):([^::\n]*)/g
+
 const Plugin = () => {
 
 	// The reveal.js instance this plugin is attached to
@@ -455,52 +459,84 @@ const Plugin = () => {
 	}
 
 	/**
+	 * Separates the inline metadata and content for slide having inline metadata in yaml block as
+	 *
+	 * ```yaml
+	 * metadata_key1: metadata_value1
+	 * metadata_key2: metadata_value2
+	 * ```
+	 */
+	function extractYAMLMetadata(markdown, options) {
+		const markdownParts = yamlRegex.exec(markdown)
+		yamlRegex.lastIndex = 0
+		if (markdownParts && markdownParts[2]) {
+			const metadata = markdownParts[2]
+			markdown = markdownParts[3] || ''
+
+			try {
+				const metadataYAML = yaml.load(metadata)
+				if (metadataYAML === undefined) {
+					throw new Error("The inline metadata is not valid.")
+				}
+				options.metadata = { ...options.metadata, ...metadataYAML }
+				options.attributes = 'class=' + (options.metadata.slide || '')
+			} catch (error) {
+				console.error(error)
+				markdown = error.message
+			}
+		}
+		return [markdown, options]
+	}
+
+	/**
+	 * Separates the inline metadata and content for slides having metadata as
+	 *
+	 * ::metadata_key1:metadata_value1 ::metadata_key2:metadata_value2
+	 */
+	function extractInlineMetadata(markdown, options) {
+		const inlineMetadata = {}
+		const matches = markdown.match(headingWithMetadataRegex)
+
+		if (matches && matches[0]) {
+			const metadataMatches = matches[0].match(metadataRegex)
+			if (metadataMatches) {
+				metadataMatches.forEach(metadataMatch => {
+					const [key, value] = metadataMatch.replace('::', '').split(':')
+					inlineMetadata[key.trim()] = value.trim()
+					const metadataPattern = new RegExp(`::\\b${key.trim()}\\b:\\s*${value.trim()}`)
+					markdown = markdown.replace(metadataPattern, '')
+				})
+			}
+		}
+
+		options.metadata = { ...options.metadata, ...inlineMetadata }
+		options.attributes = 'class=' + (options.metadata.slide || '')
+		return [markdown, options]
+	}
+
+	/**
 	 * Separates the inline metadata and content for each slide
 	 *
 	 * Returns updated options with the inline metadata and
 	 * updated markdown without the inline metadata for each slide
 	 */
 	function separateInlineMetadataAndMarkdown(markdown, options) {
-		const yamlRegex =  /```(yaml|yml)\n([\s\S]*?)```(\n[\s\S]*)?/g;
-		const headingWithMetadataRegex = /^#+\s.*::\w+:\w+.*$/m
-		const metadataRegex = /::(\w+):([^::\n]*)/g
+		const yamlMetadata = yamlRegex.test(markdown)
+		const newMetadata = headingWithMetadataRegex.test(markdown)
+		yamlRegex.lastIndex = 0
 
-		// extract metadata having format "::metadata_key:metadata_value"
-		if (headingWithMetadataRegex.test(markdown)) {
-			const inlineMetadata = {}
-			const matches = markdown.match(headingWithMetadataRegex)
-			if (metadataRegex.test(matches[0])) {
-				const metadataMatches = matches[0].match(metadataRegex)
-				metadataMatches.forEach(metadataMatch => {
-					const [key, value] = metadataMatch.replace('::', '').split(':')
-					inlineMetadata[key] = value.trim()
-					const metadataPattern = new RegExp(`::\\b${key}\\b:\\s*${value}`)
-					markdown = markdown.replace(metadataPattern, '')
-				})
-			}
-			options.metadata = {...options.metadata, ...inlineMetadata}
-			options.attributes = 'class=' + options.metadata.slide
-		} else if (yamlRegex.test(markdown)){
-			yamlRegex.lastIndex = 0;
-
-			const markdownParts = yamlRegex.exec(markdown)
-			const metadata = markdownParts[2] || {}
-			markdown = markdownParts[3] || ''
-			if (metadata){
-				try {
-					const metadataYAML = yaml.load(metadata);
-					if (metadataYAML === undefined) {
-						throw new Error("The inline metadata is not valid.")
-					}
-					options.metadata = {...options.metadata, ...metadataYAML}
-					options.attributes = 'class=' + options.metadata.slide;
-				} catch (error) {
-					markdown = error.message
-					console.error(error)
+		switch (true) {
+			case newMetadata:
+				[markdown, options] = extractInlineMetadata(markdown, options)
+				break
+			case yamlMetadata:
+				[markdown, options] = extractYAMLMetadata(markdown, options)
+				break
+			default:
+				if (options.metadata) {
+					options.attributes = 'class=' + (options.metadata.slide || '')
 				}
-			}
-		} else if (options.metadata){
-			options.attributes = 'class=' + options.metadata.slide;
+				break
 		}
 
 		return [markdown, options]
