@@ -591,7 +591,9 @@ const Plugin = () => {
 		processSlides: processSlides,
 		convertSlides: convertSlides,
 		slidify: slidify,
-		marked: marked
+		marked: marked,
+		parseFrontMatter: parseFrontMatter,
+		separateInlineMetadataAndMarkdown: separateInlineMetadataAndMarkdown
 	}
 
 };
