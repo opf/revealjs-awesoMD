@@ -4,16 +4,9 @@ footer: footer content
 slide: title-content
 presenter: presenter name
 ---
-```yaml
-slide: cover
-toc: false
-```
-# Cover Slide
----
-```yaml
-slide: section
-```
-# Section Slide
----
+# Cover Slide ::slide:cover ::toc:false
+
+# Section Slide ::slide:section
+
 # Title Content Slide
 some content

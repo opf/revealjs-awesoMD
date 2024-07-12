@@ -687,7 +687,10 @@ const Plugin = () => {
 		slidify: slidify,
 		marked: marked,
 		parseFrontMatter: parseFrontMatter,
-		separateInlineMetadataAndMarkdown: separateInlineMetadataAndMarkdown
+		separateInlineMetadataAndMarkdown: separateInlineMetadataAndMarkdown,
+		extractInlineMetadata: extractInlineMetadata,
+		addSlideSeparator: addSlideSeparator,
+		getSlidifyOptions: getSlidifyOptions
 	}
 
 };
