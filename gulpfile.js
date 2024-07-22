@@ -22,7 +22,8 @@ const babelConfig = {
             useBuiltIns: 'usage',
             modules: false
         }
-    ]]
+    ]],
+    configFile: false
 }
 
 
