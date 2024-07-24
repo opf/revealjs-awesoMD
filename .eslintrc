@@ -1,0 +1,37 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "requireConfigFile": false
+  },
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true,
+    "jest": true
+  },
+  "rules": {
+    "no-var": "error",
+    "prefer-const": "warn",
+    "no-console": "off",
+    "no-debugger": "warn",
+    "no-undef": "error",
+    "no-unused-vars": "warn",
+    "quotes": ["warn", "single"],
+    "semi": ["error", "never"],
+    "new-cap": 2,
+    "no-caller": 2,
+    "dot-notation": 0,
+    "no-eq-null": 2,
+    "no-unused-expressions": 0,
+    "curly": 0,
+    "eqeqeq": 2,
+    "wrap-iife": [2, "any"],
+    "no-use-before-define": [
+      2,
+      {
+        "functions": false
+      }
+    ]
+  }
+}
