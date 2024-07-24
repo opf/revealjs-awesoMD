@@ -206,6 +206,9 @@ const plugin = () => {
 
             // add slide separator in the case heading indicates the new slide
             if (options.separateByHeading) {
+                if (options.hasDataSeparator) {
+                    return '<section ' + options.attributes + ' data-markdown>' + 'Please do not specify "data-markdown" when "data-separator-by-heading" is used.' + '</section>'
+                }
                 options['slideSeparator'] = '---'
                 markdown = this.addSlideSeparator(markdown, options)
             }
@@ -316,6 +319,7 @@ const plugin = () => {
                                             verticalSeparator: section.getAttribute('data-separator-vertical'),
                                             notesSeparator: section.getAttribute('data-separator-notes'),
                                             separateByHeading: section.hasAttribute('data-separator-by-heading'),
+                                            hasDataSeparator: section.hasAttribute('data-separator'),
                                             attributes: self.getForwardedAttributes(section),
                                         })
                                     },
@@ -341,6 +345,7 @@ const plugin = () => {
                                 verticalSeparator: section.getAttribute('data-separator-vertical'),
                                 notesSeparator: section.getAttribute('data-separator-notes'),
                                 separateByHeading: section.hasAttribute('data-separator-by-heading'),
+                                hasDataSeparator: section.hasAttribute('data-separator'),
                                 attributes: self.getForwardedAttributes(section),
                             })
                         }
