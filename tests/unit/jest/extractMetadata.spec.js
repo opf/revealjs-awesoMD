@@ -219,3 +219,20 @@ some content
         expect(updatedMarkdownContent).toEqual(expectedMarkdownContent)
     })
 })
+
+describe('slidify', () => {
+    it('should return error message when data-separator is provided with data-separator-by-heading', () => {
+        const options = {
+            separateByHeading: true,
+            hasDataSeparator: true,
+        }
+        const expectedMarkdownSection =
+            '<section  data-markdown>' +
+            'Please do not specify "data-markdown" when "data-separator-by-heading" is used.' +
+            '</section>'
+
+        const markdownContent = fs.readFileSync('tests/unit/testFiles/noSlideSeparator.md', 'utf-8')
+        const returnedMarkdownSection = mdPlugin.slidify(markdownContent, { ...options })
+        expect(returnedMarkdownSection).toEqual(expectedMarkdownSection)
+    })
+})

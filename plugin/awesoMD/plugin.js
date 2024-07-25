@@ -207,7 +207,13 @@ const plugin = () => {
             // add slide separator in the case heading indicates the new slide
             if (options.separateByHeading) {
                 if (options.hasDataSeparator) {
-                    return '<section ' + options.attributes + ' data-markdown>' + 'Please do not specify "data-markdown" when "data-separator-by-heading" is used.' + '</section>'
+                    return (
+                        '<section ' +
+                        options.attributes +
+                        ' data-markdown>' +
+                        'Please do not specify "data-markdown" when "data-separator-by-heading" is used.' +
+                        '</section>'
+                    )
                 }
                 options['slideSeparator'] = '---'
                 markdown = this.addSlideSeparator(markdown, options)
