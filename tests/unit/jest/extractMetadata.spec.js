@@ -1,12 +1,21 @@
-import Plugin from '../../../plugin/awesoMD/plugin'
+import fs from 'fs'
+import plugin from '../../../plugin/awesoMD/plugin'
 
-// eslint-disable-next-line new-cap
-const plugin = Plugin()
+const mdPlugin = plugin()
+
+afterEach(() => {
+    jest.restoreAllMocks()
+})
 
 describe('separateInlineMetadataAndMarkdown', () => {
-    afterEach(() => {
-        jest.restoreAllMocks()
-    })
+    let slideOptions = {
+        metadata: {
+            description: 'some description',
+            footer: 'footer content',
+            slide: 'title-content',
+            presenter: 'presenter name',
+        },
+    }
 
     it.each([
         [
@@ -108,17 +117,9 @@ describe('separateInlineMetadataAndMarkdown', () => {
     ])(
         'should separate and return expected metadata and markdown content',
         (slideContent, expectedSeparatedMetadataAndMarkdown) => {
-            const slideOptions = {
-                metadata: {
-                    description: 'some description',
-                    footer: 'footer content',
-                    slide: 'title-content',
-                    presenter: 'presenter name',
-                },
-            }
-            const spySeparateInlineMetadataAndMarkdown = jest.spyOn(plugin, 'separateInlineMetadataAndMarkdown')
+            const spySeparateInlineMetadataAndMarkdown = jest.spyOn(mdPlugin, 'separateInlineMetadataAndMarkdown')
             slideContent.forEach((slide, index) => {
-                const [content, options] = spySeparateInlineMetadataAndMarkdown(slide, { ...slideOptions })
+                const [content, options] = mdPlugin.separateInlineMetadataAndMarkdown(slide, { ...slideOptions })
                 expect(options.metadata).toEqual(expectedSeparatedMetadataAndMarkdown[index][0])
                 expect(content.trim()).toEqual(expectedSeparatedMetadataAndMarkdown[index][1])
             })
@@ -126,4 +127,112 @@ describe('separateInlineMetadataAndMarkdown', () => {
             expect(spySeparateInlineMetadataAndMarkdown).toHaveBeenCalledTimes(slideContent.length)
         }
     )
+
+    it.each([true, false])(
+        'should execute extractInlineMetadata when separator by heading is true',
+        (separateByHeading) => {
+            slideOptions = {
+                ...slideOptions,
+                separateByHeading: separateByHeading,
+            }
+
+            const metadataSlide = [
+                '# Cover Slide ::slide:cover ::toc:false',
+                '# Section Slide ::slide:section',
+                '# Title Content Slide\nsome content',
+            ]
+
+            const expectedMetadataAndMarkdown = [
+                [
+                    {
+                        description: 'some description',
+                        footer: 'footer content',
+                        slide: 'cover',
+                        presenter: 'presenter name',
+                        toc: 'false',
+                    },
+                    '# Cover Slide',
+                ],
+                [
+                    {
+                        description: 'some description',
+                        footer: 'footer content',
+                        slide: 'section',
+                        presenter: 'presenter name',
+                    },
+                    '# Section Slide',
+                ],
+                [
+                    {
+                        description: 'some description',
+                        footer: 'footer content',
+                        slide: 'title-content',
+                        presenter: 'presenter name',
+                    },
+                    '# Title Content Slide\nsome content',
+                ],
+            ]
+
+            const spySeparateInlineMetadataAndMarkdown = jest.spyOn(mdPlugin, 'separateInlineMetadataAndMarkdown')
+            const spyExtractInlineMetadata = jest.spyOn(mdPlugin, 'extractInlineMetadata')
+            const spyExtractYAMLMetadata = jest.spyOn(mdPlugin, 'extractYAMLMetadata')
+            metadataSlide.forEach((slide, index) => {
+                const [content, options] = mdPlugin.separateInlineMetadataAndMarkdown(slide, { ...slideOptions })
+                expect(options.metadata).toEqual(expectedMetadataAndMarkdown[index][0])
+                expect(content.trim()).toEqual(expectedMetadataAndMarkdown[index][1])
+            })
+
+            expect(spySeparateInlineMetadataAndMarkdown).toHaveBeenCalledTimes(metadataSlide.length)
+
+            if (separateByHeading) {
+                expect(spyExtractInlineMetadata).toHaveBeenCalledTimes(metadataSlide.length)
+            } else {
+                expect(spyExtractYAMLMetadata).not.toHaveBeenCalled()
+            }
+        }
+    )
+})
+
+describe('addSlideSeparator', () => {
+    const options = {
+        slideSeparator: '---',
+    }
+    const expectedMarkdownContent = `---
+description: some description
+footer: footer content
+slide: title-content
+presenter: presenter name
+---
+# Cover Slide ::slide:cover ::toc:false
+
+---
+# Section Slide ::slide:section
+
+---
+# Title Content Slide
+some content
+`
+
+    it('should add slide separator', () => {
+        const markdownContent = fs.readFileSync('tests/unit/testFiles/noSlideSeparator.md', 'utf-8')
+        const updatedMarkdownContent = mdPlugin.addSlideSeparator(markdownContent, options)
+        expect(updatedMarkdownContent).toEqual(expectedMarkdownContent)
+    })
+})
+
+describe('slidify', () => {
+    it('should return error message when data-separator is provided with data-separator-by-heading', () => {
+        const options = {
+            separateByHeading: true,
+            hasDataSeparator: true,
+        }
+        const expectedMarkdownSection =
+            '<section  data-markdown>' +
+            'Please do not specify "data-markdown" when "data-separator-by-heading" is used.' +
+            '</section>'
+
+        const markdownContent = fs.readFileSync('tests/unit/testFiles/noSlideSeparator.md', 'utf-8')
+        const returnedMarkdownSection = mdPlugin.slidify(markdownContent, { ...options })
+        expect(returnedMarkdownSection).toEqual(expectedMarkdownSection)
+    })
 })
