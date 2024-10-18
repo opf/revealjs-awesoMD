@@ -536,6 +536,9 @@ const plugin = () => {
          */
         parseFrontMatter: function (content, options) {
             options = this.getSlidifyOptions(options)
+            if (/^(\n|\s)/.test(content)) {
+                content = content.replace(/^(\n|\s)+/, '')
+            }
 
             const parsedFrontMatter = fm(content)
 

@@ -236,3 +236,26 @@ describe('slidify', () => {
         expect(returnedMarkdownSection).toEqual(expectedMarkdownSection)
     })
 })
+
+describe('parseFrontMatter', () => {
+    const frontmatter = `---
+description: some description
+footer: footer content
+slide: title-content
+presenter: presenter name
+---
+`
+    const expectedMarkdownContent = `# Cover Slide ::slide:cover ::toc:false
+
+---
+# Section Slide ::slide:section
+
+---
+# Title Content Slide
+some content
+`
+    it.each([' ', '\n', '   ', '\n\n\n'])('new line and spaces should be removed', (noise) => {
+        const returnedMarkdownSection = mdPlugin.parseFrontMatter(noise + frontmatter + expectedMarkdownContent, {})[0]
+        expect(returnedMarkdownSection).toEqual(expectedMarkdownContent)
+    })
+})
