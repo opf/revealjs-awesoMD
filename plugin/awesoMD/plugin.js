@@ -545,11 +545,6 @@ const plugin = () => {
             content = parsedFrontMatter.body
             if (parsedFrontMatter.frontmatter) {
                 options.metadata = yaml.load(parsedFrontMatter.frontmatter)
-                if (!('slide' in options.metadata)) {
-                    content = `Missing value of 'slide' in default metadata`
-                    console.error(content)
-                    delete options.metadata
-                }
             }
             return [content, options]
         },
