@@ -669,13 +669,13 @@ const plugin = () => {
          */
         renderTemplate: function (content, options) {
             try {
-                const titleRegex = /^#+\s*(.*?)\s*$/m
+                const titleRegex = /^#+\r*(.*?)\r*$/m
                 const matches = content.match(titleRegex)
                 let title
                 if (matches) {
                     title = matches[1].trim()
                 }
-                const slideContent = content.replace(titleRegex, '')
+                const slideContent = content.replace(titleRegex, '').trim()
 
                 options = this.getSlidifyOptions(options)
                 const url = new URL(import.meta.url)
