@@ -65,7 +65,7 @@ const plugin = () => {
                     // ```javascript [25: 1,4-8]   start line numbering at 25,
                     //                             highlights lines 1 (numbered as 25) and 4-8 (numbered as 28-32)
                     if (CODE_LINE_NUMBER_REGEX.test(language)) {
-                        let lineNumberOffsetMatch = language.match(CODE_LINE_NUMBER_REGEX)[2]
+                        const lineNumberOffsetMatch = language.match(CODE_LINE_NUMBER_REGEX)[2]
                         if (lineNumberOffsetMatch) {
                             lineNumberOffset = `data-ln-start-from="${lineNumberOffsetMatch.trim()}"`
                         }
@@ -229,16 +229,14 @@ const plugin = () => {
                 lastIndex = 0,
                 isHorizontal,
                 wasHorizontal = true,
-                content,
-                sectionStack = []
+                content
+            const sectionStack = []
 
             // separates default metadata from the markdown file
             ;[markdown, options] = this.parseFrontMatter(markdown, options)
 
             // iterate until all blocks between separators are stacked up
             while ((matches = separatorRegex.exec(markdown))) {
-                const notes = null
-
                 // determine direction (horizontal by default)
                 isHorizontal = horizontalSeparatorRegex.test(matches[0])
 
@@ -314,12 +312,12 @@ const plugin = () => {
 
                 ;[].slice
                     .call(scope.querySelectorAll('section[data-markdown]:not([data-markdown-parsed])'))
-                    .forEach((section, i) => {
+                    .forEach((section) => {
                         if (section.getAttribute('data-markdown').length) {
                             externalPromises.push(
                                 self.loadExternalMarkdown(section).then(
                                     // Finished loading external file
-                                    function (xhr, url) {
+                                    function (xhr) {
                                         section.outerHTML = self.slidify(xhr.responseText, {
                                             separator: section.getAttribute('data-separator'),
                                             verticalSeparator: section.getAttribute('data-separator-vertical'),
@@ -685,7 +683,7 @@ const plugin = () => {
                 const xhr = new XMLHttpRequest()
                 xhr.open('GET', templatePath, false)
                 xhr.send()
-                let tempDiv = document.createElement('div')
+                const tempDiv = document.createElement('div')
                 if (xhr.status === 200) {
                     tempDiv.innerHTML = Mustache.render(xhr.responseText, {
                         title: title,
