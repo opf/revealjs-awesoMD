@@ -1,0 +1,116 @@
+$alert-note-color: #0a69db;
+$alert-tip-color: #198032;
+$alert-important-color: #8353dd;
+$alert-warning-color: #9b6501;
+$alert-caution-color: #d12329;
+
+.alert {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 0 solid;
+  border-left-width: 6px;
+  margin: 15px 0;
+  padding-left: 15px !important;
+  background-color: #fff;
+  font-size: 22px;
+
+  &-title {
+    display: flex;
+    flex-direction: row;
+    margin: 10px;
+
+    .alert-icon {
+      margin-right: 10px;
+    }
+
+    .alert-type {
+      font-weight: bold;
+    }
+  }
+
+  &-message {
+    color:black;
+    margin: 10px;
+  }
+
+  &.note {
+    border-left-color: $alert-note-color;
+
+    .alert-title {
+      .alert-type {
+        color: $alert-note-color;
+      }
+
+      .alert-icon {
+        svg {
+          fill: $alert-note-color;
+        }
+      }
+    }
+  }
+
+  &.tip {
+    border-left-color: $alert-tip-color;
+
+    .alert-title {
+      .alert-type {
+        color: $alert-tip-color;
+      }
+
+      .alert-icon {
+        svg {
+          fill: $alert-tip-color;
+        }
+      }
+    }
+  }
+
+  &.important {
+    border-left-color: $alert-important-color;
+
+    .alert-title {
+      .alert-type {
+        color: $alert-important-color;
+      }
+
+      .alert-icon {
+        svg {
+          fill: $alert-important-color;
+        }
+      }
+    }
+  }
+
+  &.warning {
+    border-left-color: $alert-warning-color;
+
+    .alert-title {
+      .alert-type {
+        color: $alert-warning-color;
+      }
+
+      .alert-icon {
+        svg {
+          fill: $alert-warning-color;
+        }
+      }
+    }
+  }
+
+  &.caution {
+    border-left-color: $alert-caution-color;
+
+    .alert-title {
+      .alert-type {
+        color: $alert-caution-color;
+      }
+
+      .alert-icon {
+        svg {
+          fill: $alert-caution-color;
+        }
+      }
+    }
+  }
+}

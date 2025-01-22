@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Revealjs plugin to support markdown with metadata and templates",
   "scripts": {
-    "build": "gulp build-plugins",
+    "build": "gulp build",
     "test:unit": "jest",
     "lint": "gulp lint",
     "lint:fix": "gulp format"
@@ -32,12 +32,16 @@
     "core-js": "^3.36.1",
     "front-matter": "^4.0.2",
     "gulp": "^5.0.0",
+    "gulp-clean-css": "^4.3.0",
     "gulp-eslint": "^6.0.0",
     "gulp-prettier": "^5.0.0",
+    "gulp-sass": "^6.0.0",
+    "gulp-sourcemaps": "^3.0.0",
     "jest": "^29.7.0",
     "js-yaml": "^4.1.0",
     "marked": "^4.3.0",
     "mustache": "^4.2.0",
-    "rollup": "^4.14.1"
+    "rollup": "^4.14.1",
+    "sass": "^1.83.4"
   }
 }
