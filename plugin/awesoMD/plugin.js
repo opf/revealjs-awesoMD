@@ -32,6 +32,19 @@ const HTML_ESCAPE_MAP = {
 const yamlRegex = /```(yaml|yml)\n([\s\S]*?)```(\n[\s\S]*)?/g
 const headingWithMetadataRegex = /^#+\s.*::\w+: *\w+.*$/m
 const metadataRegex = /::(\w+):([^::\n]*)/g
+const alertBlockRegex = /^\r*>\s*(\[!(\w+)\]).*\n(\s*\s*>.*\n?)*/gm
+const alertTypeRegex = /^\r*>*\s*(\[!(\w+)\])/gm
+const alertMessageRegex = /\r*>\s*[\w].*/gm
+const alertRegex = /^\r*>.*$/gm
+const regexToGetAlertType = /\[!(\w+)\]/
+
+const alertIcons = {
+    note: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>`,
+    tip: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"/></svg>`,
+    caution: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>`,
+    important: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>`,
+    warning: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>`,
+}
 
 const plugin = () => {
     // The reveal.js instance this plugin is attached to
@@ -702,60 +715,169 @@ const plugin = () => {
             }
         },
 
-        renderMarkdownAlerts: function (content) {
-            const alertRegex = /> \[!(\w+)]\s*(.*)/gm
-            const alerts = content.match(alertRegex)
+        /**
+         * Splits the markdown content to different alert blocks
+         */
+        splitContentIntoBlocks: function (content) {
+            const lines = content.split(/\r?\n/)
+            const blocks = []
+            let currentBlock = []
+            let isAlertBlock = false
 
-            if (alerts) {
-                const alertsContainer = document.createElement('div')
+            lines.forEach((line) => {
+                const trimmedLine = line.trim()
 
-                const alertIcons = {
-                    note: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>`,
-                    tip: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"/></svg>`,
-                    caution: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>`,
-                    important: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>`,
-                    warning: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>`,
+                // check if it is valid alert block
+                if (/^>+\s*\[!/.test(trimmedLine)) {
+                    if (currentBlock.length > 0) {
+                        blocks.push(currentBlock.join('\n'))
+                    }
+                    currentBlock = [line]
+                    isAlertBlock = true
+                } else if (isAlertBlock && (trimmedLine || line.startsWith('>'))) {
+                    currentBlock.push(line)
+                } else {
+                    if (currentBlock.length > 0) {
+                        blocks.push(currentBlock.join('\n'))
+                        currentBlock = []
+                        isAlertBlock = false
+                    }
+                    if (trimmedLine) blocks.push(line)
+                }
+            })
+
+            if (currentBlock.length > 0) {
+                blocks.push(currentBlock.join('\n'))
+            }
+
+            return blocks
+        },
+
+        /**
+         * Returns the nested blockquote depending upon the number of '>' in the alert block
+         */
+        createNestedBlockquote: function (count, content) {
+            if (count <= 0) return content
+            return `<blockquote>${this.createNestedBlockquote(count - 1, content)}</blockquote>`
+        },
+
+        /**
+         * Returns the rendered blockquote
+         */
+        renderBlockquote: function (alertMessageArray) {
+            const alertDiv = document.createElement('div')
+            let groupedContent = []
+            let currentCount = 0
+
+            const count = alertMessageArray[0].match(/^(>+)/)[1].length
+            for (const message of alertMessageArray) {
+                const text = message.replace(/^>+\s*/, '').trim()
+
+                if (count !== currentCount && groupedContent.length > 0) {
+                    const blockContent = `<p>${groupedContent.join('<br>')}</p>`
+                    const blockquotes = this.createNestedBlockquote(currentCount, blockContent)
+                    alertDiv.insertAdjacentHTML('beforeend', blockquotes)
+                    groupedContent = []
                 }
 
-                for (const alert of alerts) {
-                    const match = alertRegex.exec(alert)
-                    alertRegex.lastIndex = 0
+                currentCount = count
+                groupedContent.push(text)
+            }
+            if (groupedContent.length > 0) {
+                const blockContent = `<p>${groupedContent.join('<br>')}</p>`
+                const blockquotes = this.createNestedBlockquote(currentCount, blockContent)
+                alertDiv.insertAdjacentHTML('beforeend', blockquotes)
+            }
+            return alertDiv.innerHTML
+        },
 
-                    if (match) {
-                        const type = match[1].toLowerCase()
-                        const message = match[2].replace(/^>\s*/, '').trim()
+        /**
+         * Returns the markdown alerts
+         */
+        renderMarkdownAlerts: function (content) {
+            const alertsMatch = content.match(alertRegex)
+            if (!alertsMatch) {
+                return content
+            }
+            const blocks = this.splitContentIntoBlocks(content)
 
-                        const alertDiv = document.createElement('div')
+            const alertsContainer = document.createElement('div')
+
+            for (const block of blocks) {
+                if (block.match(alertBlockRegex)) {
+                    const alert = alertBlockRegex.exec(block)
+                    alertBlockRegex.lastIndex = 0
+
+                    let alertContentArray = alert.input.split('\n')
+
+                    const match = alertContentArray[0].match(alertTypeRegex)
+                    const type = match[0].match(regexToGetAlertType)[1].toLowerCase()
+                    const count = alertContentArray[0].match(/^(>+)/)[1].length
+
+                    const alertDiv = document.createElement('div')
+                    if (type in alertIcons && count === 1) {
                         alertDiv.classList.add('alert', type)
+                        alertContentArray = alertContentArray.slice(1)
 
                         const alertTitle = document.createElement('div')
                         alertTitle.classList.add('alert-title')
+                        alertTitle.innerHTML = alertIcons[type]
 
-                        const alertIcon = document.createElement('span')
-                        alertIcon.classList.add('alert-icon')
-                        alertIcon.innerHTML = alertIcons[type]
-
-                        const alertText = document.createElement('div')
-                        alertText.classList.add('alert-text')
-
-                        const alertType = document.createElement('div')
-                        alertType.classList.add('alert-type')
-                        alertType.innerText = type.charAt(0).toUpperCase() + type.slice(1)
-
-                        const alertMessage = document.createElement('div')
-                        alertMessage.classList.add('alert-message')
-                        alertMessage.innerText = message
-
-                        alertTitle.appendChild(alertIcon)
-                        alertTitle.appendChild(alertType)
+                        const textNode = document.createTextNode(' ' + type.charAt(0).toUpperCase() + type.slice(1))
+                        alertTitle.appendChild(textNode)
+                        document.body.appendChild(alertTitle)
                         alertDiv.appendChild(alertTitle)
-                        alertDiv.appendChild(alertMessage)
-                        alertsContainer.appendChild(alertDiv)
+                    } else {
+                        alertDiv.classList.add('alert')
                     }
+                    for (const message of alertContentArray) {
+                        const match = alertContentArray[0].match(/^(>+)/)
+                        const count = match === null ? 1 : match[1].length
+                        const blockquotes = this.createNestedBlockquote(count, message.replace(/^>+\s*/, '').trim())
+                        alertDiv.insertAdjacentHTML('beforeend', blockquotes)
+                    }
+                    this.styleBlockquotes(alertDiv)
+                    alertsContainer.appendChild(alertDiv)
+                } else if (block.match(alertTypeRegex) || block.match(alertMessageRegex)) {
+                    const alertMessageArray = block.split('\n')
+
+                    const alertDiv = document.createElement('div')
+                    alertDiv.classList.add('alert')
+
+                    alertDiv.innerHTML = this.renderBlockquote(alertMessageArray)
+
+                    this.styleBlockquotes(alertDiv)
+                    alertsContainer.appendChild(alertDiv)
+                } else {
+                    const plainContent = document.createElement('p')
+                    plainContent.textContent = block
+                    alertsContainer.appendChild(plainContent)
                 }
-                return alertsContainer.innerHTML
             }
-            return content
+            return alertsContainer.innerHTML
+        },
+
+        /**
+         * Adjust styling if there are nested blockquote
+         */
+        styleBlockquotes: function (parent) {
+            const blockquotes = parent.querySelectorAll('blockquote')
+
+            blockquotes.forEach((blockquote) => {
+                if (blockquote.querySelector('blockquote')) {
+                    parent.style.setProperty('--padding-top', '0px')
+                    parent.style.setProperty('--padding-bottom', '0px')
+                    const parentBlockquote = blockquote.closest('blockquote')
+
+                    if (parentBlockquote) {
+                        parentBlockquote.style.paddingTop = '0'
+                        parentBlockquote.style.paddingBottom = '0'
+                    }
+
+                    blockquote.style.border = '0 solid'
+                    blockquote.style.borderLeftWidth = '6px'
+                }
+            })
         },
     }
 }
