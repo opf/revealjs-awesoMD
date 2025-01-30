@@ -38,6 +38,8 @@
     "gulp-sass": "^6.0.0",
     "gulp-sourcemaps": "^3.0.0",
     "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "js-beautify": "^1.15.1",
     "js-yaml": "^4.1.0",
     "marked": "^4.3.0",
     "mustache": "^4.2.0",
