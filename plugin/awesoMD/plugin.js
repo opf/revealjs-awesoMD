@@ -716,33 +716,53 @@ const plugin = () => {
         },
 
         /**
-         * Splits the markdown content to different alert blocks
+         * Splits the slide content to different blocks
+         * So that every blocks can be rendered separately
          */
-        splitContentIntoBlocks: function (content) {
+        splitSlideContentIntoBlocks: function (content) {
             const lines = content.split(/\r?\n/)
             const blocks = []
             let currentBlock = []
-            let isAlertBlock = false
+            let inAlertBlock = false
 
             lines.forEach((line) => {
                 const trimmedLine = line.trim()
 
-                // check if it is valid alert block
+                // if empty line, reset
+                if (!trimmedLine) {
+                    if (currentBlock.length > 0) {
+                        blocks.push(currentBlock.join('\n'))
+                        currentBlock = []
+                        inAlertBlock = false
+                    }
+                    return
+                }
+
+                // check for start of alert block
                 if (/^>+\s*\[!/.test(trimmedLine)) {
                     if (currentBlock.length > 0) {
                         blocks.push(currentBlock.join('\n'))
                     }
                     currentBlock = [line]
-                    isAlertBlock = true
-                } else if (isAlertBlock && (trimmedLine || line.startsWith('>'))) {
+                    inAlertBlock = true
+                }
+                // if line starts with '>' or is next line of the same block
+                else if (trimmedLine.startsWith('>')) {
                     currentBlock.push(line)
-                } else {
+                    inAlertBlock = true
+                }
+                // if line is a normal line and is part of the same block
+                else if (inAlertBlock && trimmedLine) {
+                    currentBlock.push(line)
+                }
+                // for normal text block
+                else {
                     if (currentBlock.length > 0) {
                         blocks.push(currentBlock.join('\n'))
                         currentBlock = []
-                        isAlertBlock = false
+                        inAlertBlock = false
                     }
-                    if (trimmedLine) blocks.push(line)
+                    blocks.push(line)
                 }
             })
 
@@ -773,6 +793,9 @@ const plugin = () => {
             for (const message of alertMessageArray) {
                 const text = message.replace(/^>+\s*/, '').trim()
 
+                // get the count of '>' at the start and create the blockquote
+                // create a nested blockqoute depending upon the count
+                // for example, if count = 2 then blockquotes = '<blockquote><blockquote>content</blockquote></blockquote>'
                 if (count !== currentCount && groupedContent.length > 0) {
                     const blockContent = `<p>${groupedContent.join('<br>')}</p>`
                     const blockquotes = this.createNestedBlockquote(currentCount, blockContent)
@@ -799,11 +822,15 @@ const plugin = () => {
             if (!alertsMatch) {
                 return content
             }
-            const blocks = this.splitContentIntoBlocks(content)
+            // separate different alerts or other contents into different blocks and render them separately
+            const blocks = this.splitSlideContentIntoBlocks(content)
 
             const alertsContainer = document.createElement('div')
 
             for (const block of blocks) {
+                // Check if the block has following pattern
+                // > [!CAUTION]
+                // > Advises about risks or negative outcomes of certain actions.
                 if (block.match(alertBlockRegex)) {
                     const alert = alertBlockRegex.exec(block)
                     alertBlockRegex.lastIndex = 0
@@ -815,6 +842,9 @@ const plugin = () => {
                     const count = alertContentArray[0].match(/^(>+)/)[1].length
 
                     const alertDiv = document.createElement('div')
+                    // check if the first line of the block has single '>'
+                    // if true then render the block as valid alert
+                    // else render the block as block quote
                     if (type in alertIcons && count === 1) {
                         alertDiv.classList.add('alert', type)
                         alertContentArray = alertContentArray.slice(1)
@@ -838,7 +868,9 @@ const plugin = () => {
                     }
                     this.styleBlockquotes(alertDiv)
                     alertsContainer.appendChild(alertDiv)
-                } else if (block.match(alertTypeRegex) || block.match(alertMessageRegex)) {
+                }
+                // for invalid alert blocks render the block as block quote
+                else if (block.match(alertTypeRegex) || block.match(alertMessageRegex)) {
                     const alertMessageArray = block.split('\n')
 
                     const alertDiv = document.createElement('div')
