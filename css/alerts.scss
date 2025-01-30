@@ -1,0 +1,112 @@
+$alert-note-color: #0078d7;
+$alert-tip-color: #28a745;
+$alert-important-color: #6f42c1;
+$alert-warning-color: #ffc107;
+$alert-caution-color: #dc3545;
+$alert-color: #3d444d;
+
+.alert {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 0 solid;
+  border-left-width: 6px;
+  margin: 10px 0;
+  --padding-top: 5px;
+  --padding-bottom: 5px;
+  padding: var(--padding-top) 5px var(--padding-bottom) 10px !important;
+  background-color: #fff;
+  font-size: 22px;
+  border-left-color: $alert-color;
+
+  blockquote {
+    width: 100%;
+    margin: 0;
+    padding: 5px 5px 5px 10px;
+    font-style: normal;
+    background: none;
+    box-shadow: none;
+    border-left-color: $alert-color !important;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 10px !important;
+  }
+
+  &.note {
+    border-left-color: $alert-note-color;
+
+    .alert-title {
+      color: $alert-note-color;
+      font-weight: bold;
+
+      svg {
+        fill: $alert-note-color;
+        margin-right: 10px;
+      }
+    }
+  }
+
+  &.tip {
+    border-left-color: $alert-tip-color;
+
+    .alert-title {
+      color: $alert-tip-color;
+      font-weight: bold;
+
+      svg {
+        fill: $alert-tip-color;
+        margin-right: 10px;
+      }
+    }
+  }
+
+  &.important {
+    border-left-color: $alert-important-color;
+
+    .alert-title {
+      color: $alert-important-color;
+      font-weight: bold;
+
+      svg {
+        fill: $alert-important-color;
+        margin-right: 10px;
+      }
+    }
+  }
+
+  &.warning {
+    border-left-color: $alert-warning-color;
+
+    .alert-title {
+      color: $alert-warning-color;
+      font-weight: bold;
+
+      svg {
+        fill: $alert-warning-color;
+        margin-right: 10px;
+      }
+    }
+  }
+
+  &.caution {
+    border-left-color: $alert-caution-color;
+
+    .alert-title {
+      color: $alert-caution-color;
+      font-weight: bold;
+
+      svg {
+        fill: $alert-caution-color;
+        margin-right: 10px;
+      }
+    }
+  }
+}

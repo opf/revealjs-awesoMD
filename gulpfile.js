@@ -6,6 +6,9 @@ const terser = require('@rollup/plugin-terser')
 const babel = require('@rollup/plugin-babel').default
 const commonjs = require('@rollup/plugin-commonjs')
 const resolve = require('@rollup/plugin-node-resolve').default
+const sourcemaps = require('gulp-sourcemaps')
+const sass = require('gulp-sass')(require('sass'))
+const minify = require('gulp-clean-css')
 
 const cache = {}
 
@@ -70,3 +73,17 @@ gulp.task('build-plugins', () => {
         )
     )
 })
+
+gulp.task('compileToCSS', () => {
+    return gulp
+        .src(['css/**/*.scss', 'css/**/*.sass'])
+        .pipe(sourcemaps.init())
+        .pipe(sass().on('error', sass.logError))
+        .pipe(minify({ compatibility: 'ie9' }))
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest('./dist/css'))
+})
+
+gulp.task('css', () => gulp.src(['css/**/*.css']).pipe(gulp.dest('./dist/css')))
+
+gulp.task('build', gulp.series('compileToCSS', 'css', 'build-plugins'))
