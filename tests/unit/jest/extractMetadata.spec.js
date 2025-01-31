@@ -344,3 +344,36 @@ describe('renderMarkdownAlerts', () => {
         expect(beautify(returnedRenderedMarkdownAlerts)).toBe(beautify(expectedRenderedMarkdowAlerts))
     })
 })
+
+describe('splitSlideContentIntoBlocks', () => {
+    const markdownContent = `> [!CAUTION]
+> Advises about risks or negative outcomes of certain actions.
+
+\`\`\`js
+console.log('hello')
+console.log('world')
+\`\`\`
+
+some content
+
+![img alt](https://picsum.photos/100/100)
+
+- hello
+- world
+
+1. hello
+2. world`
+
+    const expectedSplitedMarkdownContent = [
+        '> [!CAUTION]\n' + '> Advises about risks or negative outcomes of certain actions.',
+        "```js\nconsole.log('hello')\nconsole.log('world')\n```",
+        'some content',
+        '![img alt](https://picsum.photos/100/100)',
+        '- hello\n- world',
+        '1. hello\n2. world',
+    ]
+    it('should split content of slide into different blocks', () => {
+        const splitedMarkdownContent = mdPlugin.splitSlideContentIntoBlocks(markdownContent)
+        expect(splitedMarkdownContent).toEqual(expectedSplitedMarkdownContent)
+    })
+})
