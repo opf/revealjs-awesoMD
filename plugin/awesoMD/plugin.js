@@ -723,7 +723,6 @@ const plugin = () => {
             const lines = content.split(/\r?\n/)
             const blocks = []
             let currentBlock = []
-            let inAlertBlock = false
             let inCodeBlock = false
             let inListBlock = false
 
@@ -732,37 +731,33 @@ const plugin = () => {
 
                 // Check for code block
                 if (/^```/.test(trimmedLine)) {
-                    if (inCodeBlock) {
-                        currentBlock.push(line)
+                    if (!inCodeBlock) {
+                        // Start of code block
                         blocks.push(currentBlock.join('\n'))
-                        currentBlock = []
-                        inCodeBlock = false
-                    } else {
-                        if (currentBlock.length > 0) {
-                            blocks.push(currentBlock.join('\n'))
-                        }
                         currentBlock = [line]
                         inCodeBlock = true
+                    } else {
+                        // Ending of code block
+                        currentBlock.push(line)
+                        blocks.push(currentBlock.join('\n'))
+
+                        // Reset code block
+                        currentBlock = []
+                        inCodeBlock = false
                     }
                     return
                 } else if (inCodeBlock) {
+                    // Inside of code block
                     currentBlock.push(line)
                     return
                 }
 
                 // Check for alert blocks
                 if (/^>+\s*\[!/.test(trimmedLine)) {
-                    if (currentBlock.length > 0) {
-                        blocks.push(currentBlock.join('\n'))
-                    }
+                    blocks.push(currentBlock.join('\n'))
                     currentBlock = [line]
-                    inAlertBlock = true
                     return
                 } else if (trimmedLine.startsWith('>')) {
-                    currentBlock.push(line)
-                    inAlertBlock = true
-                    return
-                } else if (inAlertBlock && trimmedLine) {
                     currentBlock.push(line)
                     return
                 }
@@ -770,15 +765,16 @@ const plugin = () => {
                 // Check for lists
                 if (/^[-*]\s+/.test(trimmedLine) || /^\d+\.\s+/.test(trimmedLine)) {
                     if (!inListBlock) {
-                        if (currentBlock.length > 0) {
-                            blocks.push(currentBlock.join('\n'))
-                        }
+                        // Start of lists
+                        blocks.push(currentBlock.join('\n'))
                         currentBlock = []
                         inListBlock = true
                     }
+                    // Keep adding the list to currentBlock
                     currentBlock.push(line)
                     return
                 } else if (inListBlock) {
+                    // Reset the currentBlock after list is added to blocks
                     blocks.push(currentBlock.join('\n'))
                     currentBlock = []
                     inListBlock = false
@@ -786,9 +782,7 @@ const plugin = () => {
 
                 // Check for images
                 if (/^!\[.*\]\(.*\)/.test(trimmedLine)) {
-                    if (currentBlock.length > 0) {
-                        blocks.push(currentBlock.join('\n'))
-                    }
+                    blocks.push(currentBlock.join('\n'))
                     blocks.push(trimmedLine)
                     currentBlock = []
                     return
@@ -798,18 +792,15 @@ const plugin = () => {
                 if (!trimmedLine) {
                     if (currentBlock.length > 0) {
                         blocks.push(currentBlock.join('\n'))
-                        currentBlock = []
                     }
-                    inAlertBlock = false
+                    currentBlock = []
                     inListBlock = false
                     return
                 }
 
                 // Check for plain text content
-                if (currentBlock.length > 0) {
-                    blocks.push(currentBlock.join('\n'))
-                    currentBlock = []
-                }
+                blocks.push(currentBlock.join('\n'))
+                currentBlock = []
                 blocks.push(line)
             })
 
