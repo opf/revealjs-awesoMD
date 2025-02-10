@@ -34,7 +34,7 @@ const headingWithMetadataRegex = /^#+\s.*::\w+: *\w+.*$/m
 const metadataRegex = /::(\w+):([^::\n]*)/g
 const alertBlockRegex = /^\r*>\s*(\[!(\w+)\]).*\n(\s*\s*>.*\n?)*/gm
 const alertTypeRegex = /^\r*>*\s*(\[!(\w+)\])/gm
-const alertMessageRegex = /\r*>\s*[\w].*/gm
+const alertMessageRegex = /^\r*>\s*[\w].*/gm
 const alertRegex = /^\r*>.*$/gm
 const regexToGetAlertType = /\[!(\w+)\]/
 
@@ -723,47 +723,85 @@ const plugin = () => {
             const lines = content.split(/\r?\n/)
             const blocks = []
             let currentBlock = []
-            let inAlertBlock = false
+            let inCodeBlock = false
+            let inListBlock = false
 
             lines.forEach((line) => {
                 const trimmedLine = line.trim()
 
-                // if empty line, reset
-                if (!trimmedLine) {
-                    if (currentBlock.length > 0) {
+                // Check for code block
+                if (/^```/.test(trimmedLine)) {
+                    if (!inCodeBlock) {
+                        // Start of code block
                         blocks.push(currentBlock.join('\n'))
+                        currentBlock = [line]
+                        inCodeBlock = true
+                    } else {
+                        // Ending of code block
+                        currentBlock.push(line)
+                        blocks.push(currentBlock.join('\n'))
+
+                        // Reset code block
                         currentBlock = []
-                        inAlertBlock = false
+                        inCodeBlock = false
                     }
+                    return
+                } else if (inCodeBlock) {
+                    // Inside of code block
+                    currentBlock.push(line)
                     return
                 }
 
-                // check for start of alert block
+                // Check for alert blocks
                 if (/^>+\s*\[!/.test(trimmedLine)) {
-                    if (currentBlock.length > 0) {
-                        blocks.push(currentBlock.join('\n'))
-                    }
+                    blocks.push(currentBlock.join('\n'))
                     currentBlock = [line]
-                    inAlertBlock = true
-                }
-                // if line starts with '>' or is next line of the same block
-                else if (trimmedLine.startsWith('>')) {
+                    return
+                } else if (trimmedLine.startsWith('>')) {
                     currentBlock.push(line)
-                    inAlertBlock = true
+                    return
                 }
-                // if line is a normal line and is part of the same block
-                else if (inAlertBlock && trimmedLine) {
-                    currentBlock.push(line)
-                }
-                // for normal text block
-                else {
-                    if (currentBlock.length > 0) {
+
+                // Check for lists
+                if (/^[-*]\s+/.test(trimmedLine) || /^\d+\.\s+/.test(trimmedLine)) {
+                    if (!inListBlock) {
+                        // Start of lists
                         blocks.push(currentBlock.join('\n'))
                         currentBlock = []
-                        inAlertBlock = false
+                        inListBlock = true
                     }
-                    blocks.push(line)
+                    // Keep adding the list to currentBlock
+                    currentBlock.push(line)
+                    return
+                } else if (inListBlock) {
+                    // Reset the currentBlock after list is added to blocks
+                    blocks.push(currentBlock.join('\n'))
+                    currentBlock = []
+                    inListBlock = false
                 }
+
+                // Check for images
+                if (/^!\[.*\]\(.*\)/.test(trimmedLine)) {
+                    blocks.push(currentBlock.join('\n'))
+                    blocks.push(trimmedLine)
+                    currentBlock = []
+                    return
+                }
+
+                // Handle empty lines
+                if (!trimmedLine) {
+                    if (currentBlock.length > 0) {
+                        blocks.push(currentBlock.join('\n'))
+                    }
+                    currentBlock = []
+                    inListBlock = false
+                    return
+                }
+
+                // Check for plain text content
+                blocks.push(currentBlock.join('\n'))
+                currentBlock = []
+                blocks.push(line)
             })
 
             if (currentBlock.length > 0) {
@@ -881,9 +919,9 @@ const plugin = () => {
                     this.styleBlockquotes(alertDiv)
                     alertsContainer.appendChild(alertDiv)
                 } else {
-                    const plainContent = document.createElement('p')
-                    plainContent.textContent = block
-                    alertsContainer.appendChild(plainContent)
+                    alertsContainer.appendChild(document.createTextNode('\n\n'))
+                    const textNode = document.createTextNode(block)
+                    alertsContainer.appendChild(textNode)
                 }
             }
             return alertsContainer.innerHTML

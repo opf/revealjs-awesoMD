@@ -287,12 +287,14 @@ describe('renderMarkdownAlerts', () => {
 > [!CAUTION]
         > Advises about risks or negative outcomes of certain actions.`
 
-    const expectedRenderedMarkdowAlerts = `<div class="alert caution">
+    const expectedRenderedMarkdowAlerts = `
+<div class="alert caution">
     <div class="alert-title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
             <path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path>
         </svg> Caution</div>
     <blockquote>Advises about risks or negative outcomes of certain actions.</blockquote>
 </div>
+
 <div class="alert caution">
     <div class="alert-title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
             <path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path>
@@ -300,16 +302,19 @@ describe('renderMarkdownAlerts', () => {
     <blockquote>Advises about risks or negative outcomes of certain actions.</blockquote>
     <blockquote>an other line</blockquote>
 </div>
+
 <div class="alert caution">
     <div class="alert-title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
             <path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path>
         </svg> Caution</div>
     <blockquote>Advises about risks or negative outcomes of certain actions.</blockquote>
 </div>
+
 <div class="alert">
     <blockquote>[!something]</blockquote>
     <blockquote>Advises about risks or negative outcomes of certain actions.</blockquote>
 </div>
+
 <div class="alert">
     <blockquote>
         <p>[!CAUTION]</p>
@@ -320,6 +325,7 @@ describe('renderMarkdownAlerts', () => {
         <p>Advises about risks or negative outcomes of certain actions.</p>
     </blockquote>
 </div>
+
 <div class="alert" style="--padding-top: 0px; --padding-bottom: 0px;">
     <blockquote style="padding-top: 0px; padding-bottom: 0px; border: 0px solid; border-left-width: 6px;">
         <blockquote>
@@ -327,11 +333,13 @@ describe('renderMarkdownAlerts', () => {
         </blockquote>
     </blockquote>
 </div>
+
 <div class="alert">
     <blockquote>
         <p>[!CAUTION] Advises about risks or negative outcomes of certain actions.</p>
     </blockquote>
 </div>
+
 <div class="alert caution">
     <div class="alert-title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
             <path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path>
@@ -342,5 +350,44 @@ describe('renderMarkdownAlerts', () => {
     it('should render the markdown alerts', () => {
         const returnedRenderedMarkdownAlerts = mdPlugin.renderMarkdownAlerts(markdownAlerts)
         expect(beautify(returnedRenderedMarkdownAlerts)).toBe(beautify(expectedRenderedMarkdowAlerts))
+    })
+})
+
+describe('splitSlideContentIntoBlocks', () => {
+    const markdownContent = `> [!CAUTION]
+> Advises about risks or negative outcomes of certain actions.
+
+\`\`\`js
+console.log('hello')
+console.log('world')
+\`\`\`
+
+some content
+
+![img alt](https://picsum.photos/100/100)
+
+- hello
+- world
+
+1. hello
+2. world`
+
+    const expectedSplitedMarkdownContent = [
+        '',
+        '> [!CAUTION]\n' + '> Advises about risks or negative outcomes of certain actions.',
+        '',
+        "```js\nconsole.log('hello')\nconsole.log('world')\n```",
+        '',
+        'some content',
+        '',
+        '![img alt](https://picsum.photos/100/100)',
+        '',
+        '- hello\n- world',
+        '',
+        '1. hello\n2. world',
+    ]
+    it('should split content of slide into different blocks', () => {
+        const splitedMarkdownContent = mdPlugin.splitSlideContentIntoBlocks(markdownContent)
+        expect(splitedMarkdownContent).toEqual(expectedSplitedMarkdownContent)
     })
 })
