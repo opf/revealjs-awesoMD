@@ -202,6 +202,8 @@ const plugin = () => {
             // with parsing
             content = content.replace(/<\/script>/g, SCRIPT_END_PLACEHOLDER)
 
+            content = this.renderMarkdownAlerts(content)
+
             // render the template with the content only if there is metadata
             if (options.metadata) {
                 content = this.renderTemplate(content, options)
@@ -688,8 +690,7 @@ const plugin = () => {
                 if (matches) {
                     title = matches[1].trim()
                 }
-                let slideContent = content.replace(titleRegex, '').trim()
-                slideContent = this.renderMarkdownAlerts(slideContent)
+                const slideContent = content.replace(titleRegex, '').trim()
 
                 options = this.getSlidifyOptions(options)
                 const url = new URL(import.meta.url)
