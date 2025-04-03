@@ -690,7 +690,7 @@ const plugin = () => {
                 if (matches) {
                     title = matches[1].trim()
                 }
-                let slideContent = content.replace(titleRegex, '').trim()
+                const slideContent = content.replace(titleRegex, '').trim()
 
                 options = this.getSlidifyOptions(options)
                 const url = new URL(import.meta.url)
